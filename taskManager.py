@@ -45,8 +45,8 @@ def saveGame(playerInfo, tasks): # Saves the game with the players info and thei
 
 def loadGame(): # Loads the last saved game
     global gameExists
+    gameExists = True
     with open('filename.pickle', 'rb') as handle:
-     gameExists = True
      return pickle.load(handle)
 
 def tryLoad(): # Attempts to load the game, upon failure, starts a new one
@@ -54,6 +54,7 @@ def tryLoad(): # Attempts to load the game, upon failure, starts a new one
    try: 
       loadGame()
    except:
+      global gameExists
       gameExists = False
       initializeGame()
 
@@ -76,13 +77,14 @@ def addNewTask(): # This will create an object for the task that displays the na
 
 def displayPet(): # Shows the user their animal!
    if userInfo["petType"] == "dog":
-      print("     __\n(___()'`;\n/,    /`\n\\\\\"--\\\\" + "\n")
+      print(userInfo["petName"] + "\n     __\n(___()'`;\n/,    /`\n\\\\\"--\\\\" + "\n")
    elif userInfo["petType"] == "cat":
-      print(" |\__/,|   (`\\\n |_ _  |.--.) )\n ( T   )     /\n(((^_(((/(((_/")
+      print(userInfo["petName"] + "\n |\__/,|   (`\\\n |_ _  |.--.) )\n ( T   )     /\n(((^_(((/(((_/")
    elif userInfo["petType"] == "bird":
-      print("  , ___\n`\\/{o,o}\n / /)  )\n/,--\"-\"-")
+      print(userInfo["petName"] + "\n  , ___\n`\\/{o,o}\n / /)  )\n/,--\"-\"-")
 
-
+def displayStats():
+   print("Hunger: " + str(userInfo["petHunger"]) + "\nEnjoyment: " + str(userInfo["petEnjoy"]) + "\nCleanliness: " + str(userInfo["petCleanliness"]))
 
 def getHelp(): # Displays commands the player can use and credits
    print("Type 'newtask' to create a new task.\nType 'rename' to rename your pet.\nType 'save' to save your game.\nType 'tasks' to see your current tasks and their statuses.\n")
@@ -91,6 +93,8 @@ def getHelp(): # Displays commands the player can use and credits
 def displayTasks(inputList): # Shows the player the tasks they have registered
    for each in inputList:
       print(each.__str__() + "\n")
+
+
 
 
 
@@ -123,8 +127,8 @@ if gameExists == False: # If a saved game does not exist, the player goes throug
    print("Now, start adding new tasks to your to-do list. You can add a new task at any time by typing 'newtask'. You may currently add up to five tasks.")
    
    #Executes adding a new task and placing that task in the taskList
-   task1 = addNewTask() #TODO: figure out new task naming conventions and how that will work in code repeats
-   taskList.append(task1)
+   newTask = addNewTask()
+   taskList.append(newTask)
 
    print("Great! Now, type 'tasks'. You can type this at any time to see your tasks and whether or not they've been completed.") # Player sees their list of tasks
    userInput = input(">")
@@ -132,7 +136,25 @@ if gameExists == False: # If a saved game does not exist, the player goes throug
     displayTasks(taskList)
 
    print("Wonderful. When you've completed a task, type in 'complete' to register which one you've completed. Completing tasks updates your pet's stats and keeps it happy and healthy.") # TODO: work out task completion
-   print("You've completed the tutorial! I hope you enjoy managing your tasks for a more productive and happy life. :)")
+   print("You've completed the tutorial! I hope you enjoy managing your tasks for a more productive and happy life. :) \nYou may quit the program at any time, but make sure you type 'save' first to save your progress.")
+
+
+
+while True: 
+   displayPet()
+   displayStats()
+   userInput = input("> ")
+
+   if userInput == "save":
+      saveGame(userInfo, taskList)
+   
+   elif userInput == "newtask":
+      newTask = addNewTask()
+      taskList.append(newTask)
+
+   elif userInput == "tasks":
+      displayTasks(taskList)
+
 
 
 
@@ -141,6 +163,4 @@ if gameExists == False: # If a saved game does not exist, the player goes throug
 
 # TODO: create task objects and organization system as well as stat updates
 # TODO: make sure saves actually work, how to save tasks?
-# TODO: figure out date and time stuff
-# TODO: work out reminders for tasks?
 # TODO: work out stat deprecation for pets
