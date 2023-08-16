@@ -1,7 +1,7 @@
 import pickle
 import datetime
-import waiting
-
+from threading import Timer
+import random
 
 class userTask():
    def __init__(self, name, freq):
@@ -15,7 +15,7 @@ class userTask():
       elif self.completed == True:
          return self.name + ", " + self.freq + ", completed."
 
-   def taskMarked(self): # Changes the completion status of a task after the clock rolls over. TODO: work out waiting for this
+   def taskMarked(self): # Changes the completion status of a task after the clock rolls over.
     if self.freq == "hourly" and self.completed == True:
        if datetime.datetime.now().minute == 0:
           self.completed = False
@@ -41,7 +41,8 @@ def initializeGame(): # Creates the game with some global variables defining the
 
 def saveGame(playerInfo, tasks): # Saves the game with the players info and their tasks
     with open('playerSave.pickle', 'wb') as handle:
-        pickle.dump(playerInfo, tasks, handle)
+        pickle.dump(playerInfo, handle, -1)
+        pickle.dump(tasks, handle, -1)
 
 def loadGame(): # Loads the last saved game
     global gameExists
@@ -94,11 +95,17 @@ def displayTasks(inputList): # Shows the player the tasks they have registered
    for each in inputList:
       print(each.__str__() + "\n")
 
+def decreaseStat():
+   selectedStat = random.randint(2, 5)
+   userInfo[selectedStat] -= 1
+
 
 
 
 
 tryLoad() # Start of the game, attempts to load
+t = Timer(600, decreaseStat)
+t.start()
 
 if gameExists == False: # If a saved game does not exist, the player goes through the start of the game
    animalChosen = False
@@ -147,6 +154,7 @@ while True:
 
    if userInput == "save":
       saveGame(userInfo, taskList)
+      print("Saved game.")
    
    elif userInput == "newtask":
       newTask = addNewTask()
@@ -154,13 +162,21 @@ while True:
 
    elif userInput == "tasks":
       displayTasks(taskList)
-
-
-
-
-
-
-
-# TODO: create task objects and organization system as well as stat updates
-# TODO: make sure saves actually work, how to save tasks?
-# TODO: work out stat deprecation for pets
+   
+   elif userInput == "complete":
+      count = 1
+      for each in taskList:
+         print(str(count) + each.__str__ + "\n")
+         count += 1
+      userChoice = input("Please type the number of the task you would like to mark as complete.")
+      userChoice -= 1
+      taskList[userChoice].completed = True
+      selectedStat = random.randint(2, 5)
+      if taskList[userChoice].freq == "hourly":
+         userInfo[selectedStat] += 8
+      elif taskList[userChoice].freq == "daily":
+         userInfo[selectedStat] += 20
+      elif taskList[userChoice].freq == "weekly":
+         userInfo[selectedStat] += 50
+      elif taskList[userChoice].freq == "daily":
+         userInfo[selectedStat] = 100
